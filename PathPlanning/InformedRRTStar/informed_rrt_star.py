@@ -23,7 +23,7 @@ class InformedRRTStar:
 
     def __init__(self, start, goal,
                  obstacleList, randArea,
-                 expandDis=0.3, goalSampleRate=10, maxIter=200):
+                 expandDis=0.3, goalSampleRate=10, maxSampleDensity=3):
 
         self.start = Node(start[0], start[1])
         self.goal = Node(goal[0], goal[1])
@@ -31,7 +31,8 @@ class InformedRRTStar:
         self.max_rand = randArea[1]
         self.expand_dis = expandDis
         self.goal_sample_rate = goalSampleRate
-        self.max_iter = maxIter
+        self.sample_density = 0
+        self.max_sample_density = maxSampleDensity
         self.obstacle_list = obstacleList
         self.node_list = None
 
@@ -59,7 +60,7 @@ class InformedRRTStar:
         C = np.dot(np.dot(U, np.diag(
             [1.0, 1.0, np.linalg.det(U) * np.linalg.det(np.transpose(Vh))])), Vh)
 
-        for i in range(self.max_iter):
+        while self.sample_density < self.max_sample_density:
             # Sample space is defined by cBest
             # cMin is the minimum distance between the start point and the goal
             # xCenter is the midpoint between the start and the goal
@@ -141,9 +142,11 @@ class InformedRRTStar:
             xBall = self.sample_unit_ball()
             rnd = np.dot(np.dot(C, L), xBall) + xCenter
             rnd = [rnd[(0, 0)], rnd[(1, 0)]]
+            self.sample_density += 1/(math.pi*(cMax-cMin/2)*math.sqrt((cMax/2)**2-(cMin/2)**2))
+            print(f'sample density = {self.sample_density}')
         else:
             rnd = self.sample_free_space()
-
+            self.sample_density = 0
         return rnd
 
     @staticmethod
