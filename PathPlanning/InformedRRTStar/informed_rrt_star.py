@@ -23,7 +23,7 @@ class InformedRRTStar:
 
     def __init__(self, start, goal,
                  obstacleList, randArea,
-                 expandDis=0.5, goalSampleRate=10, maxIter=200):
+                 expandDis=0.3, goalSampleRate=10, maxIter=200):
 
         self.start = Node(start[0], start[1])
         self.goal = Node(goal[0], goal[1])
@@ -126,8 +126,7 @@ class InformedRRTStar:
         return newNode
 
     def find_near_nodes(self, newNode):
-        nnode = len(self.node_list)
-        r = 50.0 * math.sqrt((math.log(nnode) / nnode))
+        r = 5 * self.expand_dis
         dlist = [(node.x - newNode.x) ** 2
                  + (node.y - newNode.y) ** 2 for node in self.node_list]
         nearinds = [dlist.index(i) for i in dlist if i <= r ** 2]
